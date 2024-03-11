@@ -25,3 +25,4 @@
 | Calidad del código     | 1.5     |
 | Funcionalidad      | 1.5      |
 
+Nombre: Sebastian Sanchez Sandoval
