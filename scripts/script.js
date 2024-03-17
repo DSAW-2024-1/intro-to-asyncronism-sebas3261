@@ -1,14 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
     const quoteContainer = document.getElementById('characters');
     const loadMoreButton = document.getElementById('load');
+    const searchInput = document.getElementById('searchInput');
+    const characterDirectionSelect = document.getElementById('characterDirection');
     let offset = 0;
-    const charactersPerPage = 10; // Ajuste para limitar la cantidad de personajes por página
+    const charactersPerPage = 10;
 
     async function loadQuotes() {
         try {
-            const response = await fetch(`https://thesimpsonsquoteapi.glitch.me/quotes?count=${charactersPerPage}&offset=${offset}`);
+            let url = `https://thesimpsonsquoteapi.glitch.me/quotes?count=${charactersPerPage}&offset=${offset}`;
+            const searchTerm = searchInput.value.trim();
+            const characterDirection = characterDirectionSelect.value;
+            if (searchTerm !== "") {
+                url += `&character=${searchTerm}`;
+            }
+            if (characterDirection !== "") {
+                url += `&characterDirection=${characterDirection}`;
+            }
+            const response = await fetch(url);
             const data = await response.json();
             
+            quoteContainer.innerHTML = ""; // Limpiar el contenido actual
+
             data.forEach(quoteData => {
                 const { quote, character, image } = quoteData;
                 const quoteElement = document.createElement('div');
@@ -37,18 +50,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 quoteContainer.appendChild(quoteElement);
             });
 
-            // Incrementar el offset para la próxima carga
             offset += charactersPerPage;
         } catch (error) {
             console.error('Error al obtener las citas:', error);
         }
     }
 
-    // Cargar citas al cargar la página
-    loadQuotes();
+    loadQuotes(); // Cargar citas al cargar la página
 
-    // Agregar evento al botón "Cargar más"
     loadMoreButton.addEventListener('click', () => {
+        loadQuotes();
+    });
+
+    searchInput.addEventListener('input', () => {
+        offset = 0; // Reiniciar el offset al cambiar la búsqueda
+        loadQuotes();
+    });
+
+    characterDirectionSelect.addEventListener('change', () => {
+        offset = 0; // Reiniciar el offset al cambiar el filtro de dirección del personaje
         loadQuotes();
     });
 });
